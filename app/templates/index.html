@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block header %}
+  <h1>{% block title %}Index{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if not session['user_id'] %}
+    <h1>Hello</h1>
+{% else %}
+    <h1>{{ user }}</h1>
+{% endif %}
+{% endblock %}

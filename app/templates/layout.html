@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+
+    <!-- http://getbootstrap.com/docs/5.1/ -->
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+
+    <title>{% block title %}{% endblock %}</title>
+
+</head>
+
+<body>
+    <!-- As a heading -->
+    <nav class="navbar bg-light">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Navbar</span>
+            <ul class="nav nav-pills justify-content-end">
+                {% if not session['user_id'] %}
+                <li class="nav-item me-3">
+                    <a class="btn btn-primary" href="/login">Log In</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-secondary" href="/register">Register</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="btn btn-primary" href="/logout">Log Out</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <header>
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning alert-dismissible fade show mb-0 text-center" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </header>
+
+    <main class="container-fluid py-5 text-center">
+    {% block content %}{% endblock %}
+    </main>
+
+    <script src="/static/bootstrap/js/bootstrap.min.js "></script>
+</body>
+
+</html>

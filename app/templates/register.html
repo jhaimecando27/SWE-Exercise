@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block header %}
+  <h1>{% block title %}Register{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form action="/register" method="post">
+    <h1 class="mb-4">Register</h1>
+
+    <div class="mb-3">
+        <input type="email" name="email" class="form-control w-auto mx-auto" placeholder="Email address" value="{{ request.form.get('email') or '' }}">
+    </div>
+
+    <div class="mb-3">
+        <input type="password" name="password" class="form-control w-auto mx-auto" placeholder="Password">
+    </div>
+
+    <div class="mb-3">
+        <input type="password" name="confirmation" class="form-control w-auto mx-auto" placeholder="Confirmation password">
+    </div>
+
+    <input type="submit" class="btn btn-primary" value="Submit">
+</form>
+{% endblock %}
