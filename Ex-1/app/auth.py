@@ -2,8 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .db import get_db
-from .modules import getOtp
-from .mail import sendOtp
+from .mail import sendOTP
 
 bp = Blueprint('auth', __name__, url_prefix="/")
 
@@ -23,7 +22,7 @@ def otp():
 
         # Click the send OTP button
         if request.form.get('sendOTP') == "Send OTP":
-            sendOtp(getOtp())
+            sendOTP()
             error = "OTP have been sent to your Email address."
 
         # Ensure input field is not empty
