@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from .db import get_db
 from .mail import sendOTP
 
-bp = Blueprint('auth', __name__, url_prefix="/")
+bp = Blueprint('auth', __name__, url_prefix="/auth")
 
 
 @bp.route('/otp', methods=['GET', 'POST'])
@@ -61,7 +61,7 @@ def otp():
         flash(error)
 
     # User entered the website
-    return render_template('otp.html')
+    return render_template('/auth/otp.html')
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -101,12 +101,12 @@ def register():
         if error is None:
             session['tmp_email'] = email
             session['tmp_pass'] = generate_password_hash(password)
-            return redirect("/otp")
+            return redirect("/auth/otp")
 
         flash(error)
 
     # User entered the website
-    return render_template('register.html')
+    return render_template('/auth/register.html')
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -143,12 +143,12 @@ def login():
         # Got to OTP route
         if error is None:
             session['tmp_email'] = email
-            return redirect('/otp')
+            return redirect('/auth/otp')
 
         flash(error)
 
     # User entered the website
-    return render_template('login.html')
+    return render_template('/auth/login.html')
 
 
 @bp.route('/logout')
