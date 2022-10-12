@@ -10,9 +10,10 @@ class Config(object):
     MAIL_PORT = 587
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_USE_TLS = True
-    MAIL_DEBUG = True
 
 
 class DevConfig(Config):
     DEBUG = True
     SECRET_KEY = 'dev'
+
+    MAIL_DEBUG = True
