@@ -2,6 +2,8 @@ class Config(object):
     DEBUG = False
     TESTING = False
 
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db'
+
     SECRET_KEY = '8027322a276aa2851f7191643805bc38b76a6a30e6db220af6d11068b768'
 
     MAIL_DEFAULT_SENDER = 'Jhaime Cando <no.reply.jhaime@gmail.com>'
