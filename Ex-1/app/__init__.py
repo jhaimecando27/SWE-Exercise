@@ -8,11 +8,7 @@ def create_app():
     """Create application"""
 
     # Create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=path.join(app.instance_path, 'database.sqlite')
-    )
+    app = Flask(__name__)
     app.config.from_object('config.DevConfig')
 
     # Ensure the instance folder exists
@@ -21,10 +17,14 @@ def create_app():
     except OSError:
         pass
 
-    from . import db, auth, views
+    from . import auth, views
+    from app.models import db
 
     db.init_app(app)
     mail.init_app(app)
+
+    with app.app_context():
+        db.create_all()
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(views.bp)

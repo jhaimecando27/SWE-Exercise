@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session
 
-from .db import get_db
+from app.models import User
 
 bp = Blueprint('views', __name__, url_prefix="/")
 
@@ -12,10 +12,7 @@ def index():
     user = "Hello"
 
     if session.get('user_id') is not None:
-        db = get_db()
-        user = db.execute(
-            'SELECT email FROM User WHERE id = ?', (session['user_id'],)
-        ).fetchone()
-        user = user['email']
+        user = User.query.filter_by(id=session['user_id']).first()
+        user = user.email
 
     return render_template('index.html', user=user)

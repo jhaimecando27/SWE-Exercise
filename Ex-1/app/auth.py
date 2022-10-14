@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .db import get_db
+from app.models import User, db
 from .mail import sendOTP
 
 bp = Blueprint('auth', __name__, url_prefix="/auth")
@@ -34,26 +34,22 @@ def otp():
             error = "OTP doesn't matched"
 
         if error is None:
-            db = get_db()
 
             # If from register route
             if session.get("tmp_pass"):
-                db.execute(
-                    "INSERT INTO User (email, password) VALUES (?, ?)",
-                    (session['tmp_email'], session['tmp_pass'])
-                )
-                db.commit()
+                user = User(email=session['tmp_email'], password=session['tmp_pass'])
+                db.session.add(user)
+                db.session.commit()
 
             # Find account
-            user = db.execute(
-                'SELECT * FROM User WHERE email = ?', (session['tmp_email'],)
-            ).fetchone()
+            user = User.query.filter_by(email=session['tmp_email']).first()
 
             # Forget any User
             session.clear()
 
             # Remember user
-            session['user_id'] = user['id']
+            print("user.id")
+            session['user_id'] = user.id
             session['otp'] = True
 
             return redirect('/')
@@ -77,9 +73,7 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
-        acc = get_db().execute(
-            "SELECT * FROM User where email = ?", (email,)
-        ).fetchone()
+        user = User.query.filter_by(email=email).first()
         error = None
 
         # Ensure input fields are not empty
@@ -91,7 +85,7 @@ def register():
             error = "Must provide Confirmation password."
 
         # Ensure account doesn't exists
-        elif acc is not None:
+        elif user:
             error = f"Your email {email} already taken."
 
         # Ensure password and confirmation password matched
@@ -121,11 +115,8 @@ def login():
 
         email = request.form.get("email")
         password = request.form.get("password")
-        db = get_db()
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE email = ?', (email,)
-        ).fetchone()
+        user = User.query.filter_by(email=email).first()
 
         # Ensure input fields are not empty
         if not email:
@@ -137,7 +128,7 @@ def login():
             error = f"Your email {email} doesn't exsists."
 
         # Ensure password matched
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user.password, password):
             error = 'Incorrect password.'
 
         # Got to OTP route
