@@ -1,4 +1,4 @@
-from os import path, makedirs
+from os import makedirs
 from flask import Flask
 
 from .mail import mail

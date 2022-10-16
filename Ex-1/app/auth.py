@@ -37,7 +37,8 @@ def otp():
 
             # If from register route
             if session.get("tmp_pass"):
-                user = User(email=session['tmp_email'], password=session['tmp_pass'])
+                user = User(email=session['tmp_email'],
+                            password=session['tmp_pass'])
                 db.session.add(user)
                 db.session.commit()
 
