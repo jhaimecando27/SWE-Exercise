@@ -1,8 +1,9 @@
 from flask import Blueprint, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from app.forms import LogInForm, RegisterForm, VerifyOTP
 from app.models import User, db
-from .mail import sendOTP
+from .mail import sendOTPMail
 
 bp = Blueprint('auth', __name__, url_prefix="/auth")
 
@@ -15,50 +16,51 @@ def otp():
     if session.get("tmp_email") is None or session.get('otp') is True:
         return redirect("/")
 
-    # User submitted a form
+    form = VerifyOTP()
+
     if request.method == 'POST':
 
         error = None
 
-        # Click the send OTP button
+        # User wants OTP to be send to email
         if request.form.get('sendOTP') == "Send OTP":
-            sendOTP()
+            sendOTPMail()
             error = "OTP have been sent to your Email address."
 
-        # Ensure input field is not empty
-        elif not request.form.get('otp'):
-            error = "Must provide OTP."
+        # User verifies OTP
+        elif form.validate_on_submit():
 
-        # Ensure otp is valid
-        elif request.form.get('otp') != session['tmp_OTP']:
-            error = "OTP doesn't matched"
+            # Ensure otp is valid
+            if form.password.data != session['tmp_OTP']:
+                error = "OTP doesn't matched"
 
-        if error is None:
+            if error is None:
 
-            # If from register route
-            if session.get("tmp_pass"):
-                user = User(email=session['tmp_email'],
-                            password=session['tmp_pass'])
-                db.session.add(user)
-                db.session.commit()
+                # If from register route
+                if session.get("tmp_pass"):
+                    user = User(email=session['tmp_email'],
+                                password=session['tmp_pass'])
+                    db.session.add(user)
+                    db.session.commit()
 
-            # Find account
-            user = User.query.filter_by(email=session['tmp_email']).first()
+                # Find account
+                user = User.query.filter_by(
+                    email=session['tmp_email']).first()
 
-            # Forget any User
-            session.clear()
+                # Cleans up the 'tmp_email', 'tmp_pass', 'tmp_OTP'
+                session.clear()
 
-            # Remember user
-            print("user.id")
-            session['user_id'] = user.id
-            session['otp'] = True
+                # Remember user
+                print("user.id")
+                session['user_id'] = user.id
+                session['otp'] = True
 
-            return redirect('/')
+                return redirect('/')
 
         flash(error)
 
     # User entered the website
-    return render_template('/auth/otp.html')
+    return render_template('/auth/otp.html', form=form)
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -67,41 +69,37 @@ def register():
 
     # Forget any user
     session.clear()
+    form = RegisterForm()
 
     # User submitted a form
     if request.method == 'POST':
+        print("test")
 
-        email = request.form.get("email")
-        password = request.form.get("password")
-        confirmation = request.form.get("confirmation")
-        user = User.query.filter_by(email=email).first()
-        error = None
+        if form.validate_on_submit():
 
-        # Ensure input fields are not empty
-        if not email:
-            error = "Must provide Email address."
-        elif not password:
-            error = "Must provide Password."
-        elif not confirmation:
-            error = "Must provide Confirmation password."
+            # User inputs
+            email = form.email.data
+            password = form.password.data
 
-        # Ensure account doesn't exists
-        elif user:
-            error = f"Your email {email} already taken."
+            # Query the input email
+            user = User.query.filter_by(email=email).first()
 
-        # Ensure password and confirmation password matched
-        elif password != confirmation:
-            error = "Password and Confirmation password doesn't matched."
+            error = None
 
-        if error is None:
-            session['tmp_email'] = email
-            session['tmp_pass'] = generate_password_hash(password)
-            return redirect("/auth/otp")
+            # Ensure account doesn't exists
+            if user:
+                error = f"Your email {email} already taken."
 
-        flash(error)
+            if error is None:
+                session['tmp_email'] = email
+                session['tmp_pass'] = generate_password_hash(password)
+                return redirect("/auth/otp")
+
+            flash(error)
+        print(form.errors)
 
     # User entered the website
-    return render_template('/auth/register.html')
+    return render_template('/auth/register.html', form=form)
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -111,21 +109,22 @@ def login():
     # Forget any user
     session.clear()
 
-    # User submitted a form
-    if request.method == 'POST':
+    form = LogInForm()
 
-        email = request.form.get("email")
-        password = request.form.get("password")
+    # User submitted a form
+    if request.method == 'POST' and form.validate_on_submit():
+
+        # User inputs
+        email = form.email.data
+        password = form.password.data
+
         error = None
+
+        # Query the input email
         user = User.query.filter_by(email=email).first()
 
-        # Ensure input fields are not empty
-        if not email:
-            error = 'Must provide Email address.'
-        elif not password:
-            error = 'Must provide Password.'
         # Ensure email exists
-        elif user is None:
+        if user is None:
             error = f"Your email {email} doesn't exsists."
 
         # Ensure password matched
@@ -140,7 +139,7 @@ def login():
         flash(error)
 
     # User entered the website
-    return render_template('/auth/login.html')
+    return render_template('/auth/login.html', form=form)
 
 
 @bp.route('/logout')

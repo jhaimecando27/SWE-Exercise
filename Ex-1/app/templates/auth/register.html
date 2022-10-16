@@ -6,20 +6,21 @@
 
 {% block content %}
 <form action="/auth/register" method="post">
+    {{ form.hidden_tag() }}
     <h1 class="mb-4">Register</h1>
 
     <div class="mb-3">
-        <input type="email" name="email" class="form-control w-auto mx-auto" placeholder="Email address" value="{{ request.form.get('email') or '' }}">
+        {{ form.email(class="form-control w-auto mx-auto", placeholder="Email Address") }}
     </div>
 
     <div class="mb-3">
-        <input type="password" name="password" class="form-control w-auto mx-auto" placeholder="Password">
+        {{ form.password(class="form-control w-auto mx-auto", placeholder="Password")}}
     </div>
 
     <div class="mb-3">
-        <input type="password" name="confirmation" class="form-control w-auto mx-auto" placeholder="Confirmation password">
+        {{ form.confirmation(class="form-control w-auto mx-auto", placeholder="Confirm Password")}}
     </div>
 
-    <input type="submit" class="btn btn-primary" value="Submit">
+    {{ form.submit(class="btn btn-primary") }}
 </form>
 {% endblock %}

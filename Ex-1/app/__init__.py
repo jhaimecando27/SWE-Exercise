@@ -19,9 +19,11 @@ def create_app():
 
     from . import auth, views
     from app.models import db
+    from app.forms import csrf
 
     db.init_app(app)
     mail.init_app(app)
+    csrf.init_app(app)
 
     with app.app_context():
         db.create_all()
