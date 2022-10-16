@@ -15,4 +15,7 @@ def index():
         user = User.query.filter_by(id=session['user_id']).first()
         user = user.email
 
+    if user == "Hello":
+        session.clear()
+
     return render_template('index.html', user=user)
