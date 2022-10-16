@@ -6,7 +6,7 @@ from flask_mail import Mail, Message
 mail = Mail()
 
 
-def sendOTP():
+def sendOTPMail():
     """Send OTP to the email in session"""
 
     # Generate OTP
