@@ -125,7 +125,7 @@ def login():
 
         # Ensure email exists
         if user is None:
-            error = f"Your email {email} doesn't exsists."
+            error = f"Your email {email} is not registered."
 
         # Ensure password matched
         elif not check_password_hash(user.password, password):
